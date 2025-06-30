@@ -141,9 +141,4 @@ class SignupActivity : AppCompatActivity() {
         binding.editTextPassword.isEnabled = !isLoading
         binding.editTextConfirmPassword.isEnabled = !isLoading
     }
-
-    override fun onSupportNavigateUp(): Boolean {
-        finish()
-        return true
-    }
 }

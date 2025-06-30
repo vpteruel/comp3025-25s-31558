@@ -32,7 +32,7 @@ class Login2Activity : AppCompatActivity() {
         }
 
         binding.buttonBackToMainFromLogin2.setOnClickListener {
-            finish() // Go back to MainActivity
+            finish()
         }
 
         binding.textViewGoToSignUp2.setOnClickListener {
