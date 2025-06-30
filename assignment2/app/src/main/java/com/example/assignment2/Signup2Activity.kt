@@ -22,10 +22,6 @@ class Signup2Activity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
 
     private val passwordPattern = Pattern.compile(
-        "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!_])(?=\\S+$).{8,15}$"
-    )
-
-    private val strictPasswordPattern = Pattern.compile(
         "^(?=.*[A-Z])(?=.*[!@#\$%^&+=_()-])(?=\\S+$).{8,15}$"
     )
 
@@ -146,7 +142,7 @@ class Signup2Activity : AppCompatActivity() {
         if (!password.matches(Regex(".*[!@#\$%^&+=_()-].*"))) {
             return PasswordValidationResult(false, "Password must include at least one special character (e.g., !@#\$%^&+=_()-).")
         }
-        if (!strictPasswordPattern.matcher(password).matches()) {
+        if (!passwordPattern.matcher(password).matches()) {
             return PasswordValidationResult(false, "Password does not meet all criteria (8-15 chars, 1 uppercase, 1 special).")
         }
         return PasswordValidationResult(true)
