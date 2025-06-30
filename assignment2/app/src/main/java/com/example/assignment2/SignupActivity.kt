@@ -87,7 +87,7 @@ class SignupActivity : AppCompatActivity() {
 
         setLoading(true)
 
-        val firebaseAuthEmail = "$username@example.com"
+        val firebaseAuthEmail = "$username@hpha.ca"
 
         auth.createUserWithEmailAndPassword(firebaseAuthEmail, password)
             .addOnCompleteListener(this) { task ->
