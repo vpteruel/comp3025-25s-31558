@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">google-maps</string>
+    <string name="lbl_ilac_downtown_campus">ILAC</string>
+    <string name="lbl_my_location">My Location</string>
+    <string name="lbl_connect_ilac_and_my_location">Connect</string>
+</resources>
