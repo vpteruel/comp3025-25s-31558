@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">week13</string>
+    <string name="take_screenshot">Take Screenshot</string>
+    <string name="show_preview">Show Preview</string>
+    <string name="screenshot_preview_description">Preview of the taken screenshot</string>
+</resources>
