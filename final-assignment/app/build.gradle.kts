@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services") version "4.4.3" apply false
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -48,6 +48,11 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.google.playservices.maps)
     implementation(libs.google.playservices.location)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

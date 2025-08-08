@@ -1,8 +1,6 @@
 package com.example.final_assignment
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +11,6 @@ import com.example.final_assignment.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var sharedPreferences: SharedPreferences
 
     companion object {
         const val PREFS_NAME = "UserPrefs"
@@ -27,8 +24,6 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
         binding.signUpGoogleButton.setOnClickListener {
             val intent = Intent(this, SignUpGoogleActivity::class.java)
