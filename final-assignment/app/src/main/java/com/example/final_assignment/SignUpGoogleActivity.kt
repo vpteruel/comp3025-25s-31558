@@ -1,28 +1,45 @@
 package com.example.final_assignment
 
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.lifecycle.lifecycleScope
 import com.example.final_assignment.databinding.ActivitySignUpGoogleActivityBinding
-import com.google.firebase.Firebase
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.auth
-import android.content.Intent
-import android.content.SharedPreferences
-import com.google.firebase.firestore.firestore
-import androidx.core.content.edit
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class SignUpGoogleActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignUpGoogleActivityBinding
+    private lateinit var credentialManager: CredentialManager
     private lateinit var auth: FirebaseAuth
     private lateinit var sharedPreferences: SharedPreferences
+
+    companion object {
+        private const val TAG = "SignUpGoogleActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,16 +47,33 @@ class SignUpGoogleActivity : AppCompatActivity() {
         binding = ActivitySignUpGoogleActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        auth = Firebase.auth
+        credentialManager = CredentialManager.create(this)
+        auth = FirebaseAuth.getInstance()
 
         sharedPreferences = getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE)
 
-        binding.signUpButton.setOnClickListener {
-            signup()
+        binding.googleSignUpButton.setOnClickListener {
+            lifecycleScope.launch {
+                signIn()
+            }
+        }
+
+        binding.signOutButton.setOnClickListener {
+            signOut()
         }
 
         binding.backButton.setOnClickListener {
             finish()
+        }
+
+        binding.nextButton.setOnClickListener {
+            if (auth.currentUser != null) {
+                val intent = Intent(this, PersonalInformationActivity::class.java)
+                startActivity(intent)
+                finish()
+            } else {
+                Toast.makeText(this, "Please sign in first", Toast.LENGTH_SHORT).show()
+            }
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.signUpGoogle)) { v, insets ->
@@ -49,103 +83,119 @@ class SignUpGoogleActivity : AppCompatActivity() {
         }
     }
 
-    private fun signup() {
-        val username = binding.usernameTextInputEditText.text.toString().trim()
-        val password = binding.passwordTextInputEditText.text.toString().trim()
-        val confirmPassword = binding.confirmPasswordTextInputEditText.text.toString().trim()
+    override fun onStart() {
+        super.onStart()
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            updateUI(currentUser)
+        }
+    }
 
-        if (username.isEmpty()) {
-            binding.usernameTextInputLayout.error = "Username is required"
-            binding.usernameTextInputEditText.requestFocus()
+    private suspend fun signIn() {
+        if (auth.currentUser != null) {
+            updateUI(auth.currentUser)
             return
-        } else {
-            binding.usernameTextInputLayout.error = null
         }
 
-        if (password.isEmpty()) {
-            binding.passwordTextInputLayout.error = "Password is required"
-            binding.passwordTextInputEditText.requestFocus()
-            return
-        } else {
-            binding.passwordTextInputLayout.error = null
-        }
-
-        if (password.length < 6) {
-            binding.passwordTextInputLayout.error = "Password must be at least 6 characters"
-            binding.passwordTextInputEditText.requestFocus()
-            return
-        } else {
-            binding.passwordTextInputLayout.error = null
-        }
-
-        if (confirmPassword.isEmpty()) {
-            binding.confirmPasswordTextInputLayout.error = "Confirm password is required"
-            binding.confirmPasswordTextInputEditText.requestFocus()
-            return
-        } else {
-            binding.confirmPasswordTextInputLayout.error = null
-        }
-
-        if (password != confirmPassword) {
-            binding.confirmPasswordTextInputLayout.error = "Passwords do not match"
-            binding.confirmPasswordTextInputEditText.requestFocus()
-            return
-        } else {
-            binding.confirmPasswordTextInputLayout.error = null
-        }
-
-        setLoading(true)
-
-        val firebaseAuthEmail = "$username@gmail.com"
-
-        auth.createUserWithEmailAndPassword(firebaseAuthEmail, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val firebaseUser = auth.currentUser
-                    firebaseUser?.let {
-                        saveUsernameToFirestore(it.uid, username)
-                    }
-                } else {
-                    setLoading(false)
-                    if (task.exception is FirebaseAuthUserCollisionException) {
-                        Toast.makeText(baseContext, "Username might already be taken. Try a different one.", Toast.LENGTH_LONG).show()
-                        binding.usernameTextInputLayout.error = "Username might be taken"
-                    } else {
-                        Toast.makeText(baseContext, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                    }
+        try {
+            val response = buildCredentialRequest()
+            handleSignIn(response)
+        } catch (e: GetCredentialException) {
+            Log.w(TAG, "Sign up failed", e)
+            when (e.message) {
+                "Request canceled by user." -> {
+                    Toast.makeText(
+                        this@SignUpGoogleActivity,
+                        "Sign up canceled",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else -> {
+                    Toast.makeText(
+                        this@SignUpGoogleActivity,
+                        "Sign up failed: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Unexpected error during sign up", e)
+            if (e is CancellationException) throw e
+            Toast.makeText(
+                this@SignUpGoogleActivity,
+                "An unexpected error occurred: ${e.localizedMessage}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
-    private fun saveUsernameToFirestore(userId: String, username: String) {
-        val db = Firebase.firestore
-        val user = hashMapOf(
-            "username" to username,
-            "createdAt" to com.google.firebase.Timestamp.now()
+    private suspend fun buildCredentialRequest(): GetCredentialResponse {
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(
+                GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId(getString(R.string.default_web_client_id))
+                    .setAutoSelectEnabled(false)
+                    .build()
+            )
+            .build()
+
+        return credentialManager.getCredential(
+            request = request, context = this@SignUpGoogleActivity
         )
-
-        db.collection("users").document(userId)
-            .set(user)
-            .addOnSuccessListener {
-                setLoading(false)
-                Toast.makeText(baseContext, "Signup successful!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, PersonalInformationActivity::class.java))
-                finishAffinity()
-            }
-            .addOnFailureListener { e ->
-                setLoading(false)
-                Toast.makeText(baseContext, "Failed to save user details: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-
-        sharedPreferences.edit { putString(MainActivity.KEY_USERNAME, username) }
     }
 
-    private fun setLoading(isLoading: Boolean) {
-        binding.signUpProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        binding.signUpButton.isEnabled = !isLoading
-        binding.backButton.isEnabled = !isLoading
-        binding.usernameTextInputEditText.isEnabled = !isLoading
-        binding.passwordTextInputEditText.isEnabled = !isLoading
-        binding.confirmPasswordTextInputEditText.isEnabled = !isLoading
+    private suspend fun handleSignIn(response: GetCredentialResponse) {
+        val credential = response.credential
+
+        if (
+            credential is CustomCredential &&
+            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+        ) {
+            try {
+                val tokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                val authCredential = GoogleAuthProvider.getCredential(tokenCredential.idToken, null)
+                val authResult = auth.signInWithCredential(authCredential).await()
+                updateUI(authResult.user)
+
+                val username = authResult.user?.email ?: ""
+                sharedPreferences.edit { putString(MainActivity.KEY_USERNAME, username) }
+            } catch (e: GoogleIdTokenParsingException) {
+                Log.w(TAG, "Error parsing Google ID token", e)
+                updateUI(null)
+            } catch (e: Exception) {
+                Log.e(TAG, "Firebase auth failed", e)
+                updateUI(null)
+            }
+        } else {
+            Log.w(TAG, "Invalid credential type")
+            Toast.makeText(this, "Invalid credential type", Toast.LENGTH_SHORT).show()
+            updateUI(null)
+        }
+    }
+
+    private fun updateUI(user: FirebaseUser?) {
+        if (user != null) {
+            binding.googleSignUpButton.visibility = View.GONE
+            binding.signOutButton.visibility = View.VISIBLE
+            binding.statusTextView.text = "Signed in as: ${user.email}"
+
+            Log.d(TAG, "User signed in: ${user.email}")
+            Toast.makeText(this, "Welcome ${user.displayName ?: user.email}!", Toast.LENGTH_SHORT).show()
+        } else {
+            binding.googleSignUpButton.visibility = View.VISIBLE
+            binding.signOutButton.visibility = View.GONE
+            binding.statusTextView.text = "You are not signed in."
+
+            Log.d(TAG, "Sign up failed or user is signed out")
+        }
+    }
+
+    private fun signOut() {
+        lifecycleScope.launch {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        }
+        auth.signOut()
+        updateUI(null)
     }
 }
