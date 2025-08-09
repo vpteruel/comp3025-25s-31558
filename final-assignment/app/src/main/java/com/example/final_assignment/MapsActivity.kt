@@ -109,7 +109,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         binding.nextButton.setOnClickListener {
-            val intent = Intent(this, MediaVideoRecording::class.java)
+            val intent = Intent(this, MediaVideoRecordingActivity::class.java)
             startActivity(intent)
         }
 
