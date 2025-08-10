@@ -19,7 +19,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
-import com.example.final_assignment.databinding.ActivitySignUpGoogleActivityBinding
+import com.example.final_assignment.databinding.ActivitySignUpGoogleBinding
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -32,7 +32,7 @@ import kotlinx.coroutines.tasks.await
 
 class SignUpGoogleActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySignUpGoogleActivityBinding
+    private lateinit var binding: ActivitySignUpGoogleBinding
     private lateinit var credentialManager: CredentialManager
     private lateinit var auth: FirebaseAuth
     private lateinit var sharedPreferences: SharedPreferences
@@ -44,7 +44,7 @@ class SignUpGoogleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivitySignUpGoogleActivityBinding.inflate(layoutInflater)
+        binding = ActivitySignUpGoogleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         credentialManager = CredentialManager.create(this)

@@ -17,7 +17,7 @@ import androidx.camera.video.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
-import com.example.final_assignment.databinding.ActivityMediaVideoRecordingBinding
+import com.example.final_assignment.databinding.ActivityMediaVideoBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -26,9 +26,9 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class MediaVideoRecordingActivity : AppCompatActivity() {
+class MediaVideoActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMediaVideoRecordingBinding
+    private lateinit var binding: ActivityMediaVideoBinding
     private lateinit var cameraExecutor: ExecutorService
     private var videoCapture: VideoCapture<Recorder>? = null
     private var recording: Recording? = null
@@ -50,7 +50,7 @@ class MediaVideoRecordingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMediaVideoRecordingBinding.inflate(layoutInflater)
+        binding = ActivityMediaVideoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -99,7 +99,7 @@ class MediaVideoRecordingActivity : AppCompatActivity() {
         recording = videoCapture.output
             .prepareRecording(this, mediaStoreOutputOptions)
             .apply {
-                if (PermissionChecker.checkSelfPermission(this@MediaVideoRecordingActivity,
+                if (PermissionChecker.checkSelfPermission(this@MediaVideoActivity,
                         Manifest.permission.RECORD_AUDIO) ==
                     PermissionChecker.PERMISSION_GRANTED)
                 {

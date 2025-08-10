@@ -11,7 +11,7 @@ import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.final_assignment.databinding.ActivitySignUpFacebookActivityBinding
+import com.example.final_assignment.databinding.ActivitySignUpFacebookBinding
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -24,7 +24,7 @@ import kotlinx.coroutines.tasks.await
 
 class SignUpFacebookActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySignUpFacebookActivityBinding
+    private lateinit var binding: ActivitySignUpFacebookBinding
     private lateinit var callbackManager: CallbackManager
     private lateinit var auth: FirebaseAuth
     private lateinit var sharedPreferences: SharedPreferences
@@ -36,7 +36,7 @@ class SignUpFacebookActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivitySignUpFacebookActivityBinding.inflate(layoutInflater)
+        binding = ActivitySignUpFacebookBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()

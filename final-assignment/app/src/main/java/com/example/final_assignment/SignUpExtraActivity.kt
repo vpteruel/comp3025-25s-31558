@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.final_assignment.databinding.ActivitySignUpExtraActivityBinding
+import com.example.final_assignment.databinding.ActivitySignUpExtraBinding
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 
 class SignUpExtraActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySignUpExtraActivityBinding
+    private lateinit var binding: ActivitySignUpExtraBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var sharedPreferences: SharedPreferences
     private var verificationId: String? = null
@@ -30,7 +30,7 @@ class SignUpExtraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivitySignUpExtraActivityBinding.inflate(layoutInflater)
+        binding = ActivitySignUpExtraBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()

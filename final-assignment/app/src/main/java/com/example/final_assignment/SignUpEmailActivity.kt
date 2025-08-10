@@ -8,7 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.final_assignment.databinding.ActivitySignUpEmailActivityBinding
+import com.example.final_assignment.databinding.ActivitySignUpEmailBinding
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -20,14 +20,14 @@ import androidx.core.content.edit
 
 class SignUpEmailActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySignUpEmailActivityBinding
+    private lateinit var binding: ActivitySignUpEmailBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivitySignUpEmailActivityBinding.inflate(layoutInflater)
+        binding = ActivitySignUpEmailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = Firebase.auth

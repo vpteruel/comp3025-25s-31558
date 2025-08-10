@@ -18,13 +18,27 @@ class MediaMapOptionsActivity : AppCompatActivity() {
         binding = ActivityMediaMapOptionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.mapsButton.setOnClickListener {
+            val intent = Intent(this, MapsActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.mediaPhotoButton.setOnClickListener {
+            val intent = Intent(this, MediaPhotoActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.mediaVideoButton.setOnClickListener {
+            val intent = Intent(this, MediaVideoActivity::class.java)
+            startActivity(intent)
+        }
+
         binding.backButton.setOnClickListener {
             finish()
         }
 
-        binding.nextButton.setOnClickListener {
-            val intent = Intent(this, MapsActivity::class.java)
-            startActivity(intent)
+        binding.exitButton.setOnClickListener {
+            finishAffinity()
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mediaMapOptions)) { v, insets ->
