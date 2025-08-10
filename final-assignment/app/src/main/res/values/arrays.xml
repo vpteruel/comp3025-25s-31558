@@ -144,4 +144,14 @@
         <item>Barbados</item>
         <item>Grenada</item>
     </string-array>
+
+    <string-array name="questions_array">
+        <item>Select your question</item>
+        <item>What is my name?</item>
+        <item>What is my family name?</item>
+        <item>What is my full name?</item>
+        <item>What year was I born?</item>
+        <item>What city am I living in?</item>
+        <item>What country am I living in?</item>
+    </string-array>
 </resources>

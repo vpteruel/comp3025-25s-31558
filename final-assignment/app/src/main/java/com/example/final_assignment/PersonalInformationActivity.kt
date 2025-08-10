@@ -24,7 +24,7 @@ class PersonalInformationActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE)
 
         val username = sharedPreferences.getString(MainActivity.KEY_USERNAME, "")
-        binding.firstNameEditText.setText(username)
+        binding.firstNameTextInputEditText.setText(username)
 
         binding.backButton.setOnClickListener {
             finish()
