@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ages_array">
+        <item>Select your age</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+        <item>26</item>
+        <item>27</item>
+        <item>28</item>
+        <item>29</item>
+        <item>30</item>
+        <item>31</item>
+        <item>32</item>
+        <item>33</item>
+        <item>34</item>
+        <item>35</item>
+        <item>36</item>
+        <item>37</item>
+        <item>38</item>
+        <item>39</item>
+        <item>40</item>
+        <item>41</item>
+        <item>42</item>
+        <item>43</item>
+        <item>44</item>
+        <item>45</item>
+        <item>46</item>
+        <item>47</item>
+        <item>48</item>
+        <item>49</item>
+        <item>50</item>
+    </string-array>
+
+    <string-array name="cities_array">
+        <item>Select your city</item>
+        <item>Toronto</item>
+        <item>Vancouver</item>
+        <item>Montreal</item>
+        <item>Ottawa</item>
+        <item>Calgary</item>
+        <item>Edmonton</item>
+        <item>Winnipeg</item>
+        <item>Halifax</item>
+        <item>Victoria</item>
+        <item>Quebec City</item>
+        <item>London</item>
+        <item>Hamilton</item>
+        <item>Kitchener</item>
+        <item>Windsor</item>
+        <item>St. Catharines</item>
+        <item>Regina</item>
+        <item>Saskatoon</item>
+        <item>St. John\'s</item>
+        <item>Charlottetown</item>
+        <item>Fredericton</item>
+        <item>Moncton</item>
+        <item>Thunder Bay</item>
+        <item>Sudbury</item>
+        <item>Kingston</item>
+        <item>Guelph</item>
+        <item>Abbotsford</item>
+        <item>Kamloops</item>
+        <item>Chilliwack</item>
+        <item>Red Deer</item>
+        <item>Medicine Hat</item>
+        <item>Lethbridge</item>
+        <item>Grande Prairie</item>
+        <item>Saint John</item>
+        <item>Whitehorse</item>
+        <item>Yellowknife</item>
+        <item>Iqaluit</item>
+        <item>North Bay</item>
+        <item>Peterborough</item>
+        <item>Oshawa</item>
+        <item>Barrie</item>
+        <item>Brantford</item>
+        <item>Chatham-Kent</item>
+        <item>New York</item>
+        <item>Los Angeles</item>
+        <item>Chicago</item>
+        <item>Houston</item>
+        <item>Phoenix</item>
+        <item>Philadelphia</item>
+        <item>San Antonio</item>
+        <item>San Diego</item>
+        <item>Dallas</item>
+        <item>San Jose</item>
+        <item>Austin</item>
+        <item>Jacksonville</item>
+        <item>Fort Worth</item>
+        <item>Columbus</item>
+        <item>Cleveland</item>
+        <item>Cincinnati</item>
+        <item>Minneapolis</item>
+        <item>New Orleans</item>
+        <item>Wichita</item>
+        <item>Tampa</item>
+        <item>Honolulu</item>
+    </string-array>
+
+    <string-array name="countries_array">
+        <item>Select your country</item>
+        <item>Canada</item>
+        <item>United States</item>
+        <item>Mexico</item>
+        <item>United Kingdom</item>
+        <item>France</item>
+        <item>Germany</item>
+        <item>Italy</item>
+        <item>Spain</item>
+        <item>Australia</item>
+        <item>Japan</item>
+        <item>South Korea</item>
+        <item>India</item>
+        <item>China</item>
+        <item>Brazil</item>
+        <item>Argentina</item>
+        <item>Chile</item>
+        <item>Colombia</item>
+        <item>Peru</item>
+        <item>Venezuela</item>
+        <item>Ecuador</item>
+        <item>Bolivia</item>
+        <item>Paraguay</item>
+        <item>Uruguay</item>
+        <item>Guyana</item>
+        <item>Suriname</item>
+        <item>French Guiana</item>
+        <item>Belize</item>
+        <item>Jamaica</item>
+        <item>Haiti</item>
+        <item>Dominican Republic</item>
+        <item>Cuba</item>
+        <item>Puerto Rico</item>
+        <item>Saint Kitts and Nevis</item>
+        <item>Saint Lucia</item>
+        <item>Saint Vincent and the Grenadines</item>
+        <item>Barbados</item>
+        <item>Grenada</item>
+    </string-array>
+</resources>
