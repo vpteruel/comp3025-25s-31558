@@ -21,7 +21,7 @@ import androidx.core.content.contentValuesOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
-import com.example.final_assignment.databinding.ActivityMediaVideoRecordingBinding
+import com.example.final_assignment.databinding.ActivityMediaPhotoBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -30,7 +30,7 @@ import java.util.concurrent.Executors
 
 class MediaPhotoActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMediaVideoRecordingBinding
+    private lateinit var binding: ActivityMediaPhotoBinding
     private lateinit var cameraExecutor: ExecutorService
     private var imageCapture: ImageCapture? = null
     private var currentPhotoUri: Uri? = null
@@ -47,7 +47,7 @@ class MediaPhotoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityMediaVideoRecordingBinding.inflate(layoutInflater)
+        binding = ActivityMediaPhotoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         cameraExecutor = Executors.newSingleThreadExecutor()

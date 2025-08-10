@@ -1,6 +1,7 @@
 package com.example.final_assignment
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -8,23 +9,20 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.contentValuesOf
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.bumptech.glide.Glide
+import androidx.core.content.PermissionChecker
 import com.example.final_assignment.databinding.ActivityMediaVideoRecordingBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -32,21 +30,26 @@ class MediaVideoRecordingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMediaVideoRecordingBinding
     private lateinit var cameraExecutor: ExecutorService
-    private var imageCapture: ImageCapture? = null
-    private var currentPhotoUri: Uri? = null
-    private val requiredPermissions = arrayOf(Manifest.permission.CAMERA)
-    private val permissionsRequestCode = 123
+    private var videoCapture: VideoCapture<Recorder>? = null
+    private var recording: Recording? = null
+    private var currentVideoUri: Uri? = null
+
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firebaseFirestore: FirebaseFirestore
     private lateinit var firebaseStorage: FirebaseStorage
 
     companion object {
         private const val TAG = "MediaVideoRecording"
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+        private val REQUIRED_PERMISSIONS =
+            mutableListOf (
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO
+            ).toTypedArray()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityMediaVideoRecordingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -56,204 +59,189 @@ class MediaVideoRecordingActivity : AppCompatActivity() {
         firebaseFirestore = FirebaseFirestore.getInstance()
         firebaseStorage = FirebaseStorage.getInstance()
 
-        if (hasPermissions())
+        if (allPermissionsGranted()) {
             startCamera()
-        else
-            requestPermissions()
-
-        binding.captureButton.setOnClickListener {
-            capturePhoto()
+        } else {
+            ActivityCompat.requestPermissions(
+                this, REQUIRED_PERMISSIONS, 10
+            )
         }
 
-        binding.previewButton.setOnClickListener {
-            showPreview()
+        binding.startVideoButton.setOnClickListener { captureVideo() }
+        binding.saveVideoButton.setOnClickListener { saveVideo() }
+        binding.viewRecordingButton.setOnClickListener { viewRecording() }
+    }
+
+    private fun captureVideo() {
+        val videoCapture = this.videoCapture ?: return
+
+        binding.startVideoButton.isEnabled = false
+
+        val curRecording = recording
+        if (curRecording != null) {
+            curRecording.stop()
+            recording = null
+            return
         }
 
-        binding.uploadButton.setOnClickListener {
-            uploadImageToFirestore()
+        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+            .format(System.currentTimeMillis())
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
         }
 
-        binding.loadCameraButton.setOnClickListener {
-            binding.cameraPreview.visibility = View.VISIBLE
-            binding.imagePreview.visibility = View.GONE
+        val mediaStoreOutputOptions = MediaStoreOutputOptions
+            .Builder(contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+            .setContentValues(contentValues)
+            .build()
 
-            startCamera()
-        }
-
-        binding.backButton.setOnClickListener {
-            finish()
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mediaVideoRecording)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        recording = videoCapture.output
+            .prepareRecording(this, mediaStoreOutputOptions)
+            .apply {
+                if (PermissionChecker.checkSelfPermission(this@MediaVideoRecordingActivity,
+                        Manifest.permission.RECORD_AUDIO) ==
+                    PermissionChecker.PERMISSION_GRANTED)
+                {
+                    withAudioEnabled()
+                }
+            }
+            .start(ContextCompat.getMainExecutor(this)) { recordEvent ->
+                when(recordEvent) {
+                    is VideoRecordEvent.Start -> {
+                        binding.startVideoButton.apply {
+                            text = "Stop Video"
+                            isEnabled = true
+                        }
+                    }
+                    is VideoRecordEvent.Finalize -> {
+                        if (!recordEvent.hasError()) {
+                            val msg = "Video capture succeeded: " +
+                                    "${recordEvent.outputResults.outputUri}"
+                            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT)
+                                .show()
+                            Log.d(TAG, msg)
+                            currentVideoUri = recordEvent.outputResults.outputUri
+                        } else {
+                            recording?.close()
+                            recording = null
+                            Log.e(TAG, "Video capture ends with error: " +
+                                    "${recordEvent.error}")
+                        }
+                        binding.startVideoButton.apply {
+                            text = "Start Video"
+                            isEnabled = true
+                        }
+                    }
+                }
+            }
     }
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener({
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(binding.cameraPreview.surfaceProvider)
+                }
+
+            val recorder = Recorder.Builder()
+                .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
+                .build()
+            videoCapture = VideoCapture.withOutput(recorder)
+
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
             try {
-                val cameraProvider = cameraProviderFuture.get()
-                bindCameraUseCases(cameraProvider)
-            } catch (exc: Exception) {
-                Log.e(TAG, "Camera initialization failed", exc)
-                Toast.makeText(
-                    this@MediaVideoRecordingActivity,
-                    "Camera failed: ${exc.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    this, cameraSelector, preview, videoCapture)
+            } catch(exc: Exception) {
+                Log.e(TAG, "Use case binding failed", exc)
             }
+
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun bindCameraUseCases(cameraProvider: ProcessCameraProvider) {
-        cameraProvider.unbindAll()
-
-        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-        val preview = Preview.Builder()
-            .build()
-            .also { it.setSurfaceProvider(binding.cameraPreview.surfaceProvider) }
-
-        imageCapture = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .build()
-
-        try {
-            cameraProvider.bindToLifecycle(
-                this,
-                cameraSelector,
-                preview,
-                imageCapture
-            )
-        } catch (exc: Exception) {
-            Log.e(TAG, "Use case binding failed", exc)
+    private fun saveVideo() {
+        val videoTitle = binding.videoTitleEditText.text.toString()
+        if (videoTitle.isEmpty()) {
+            Toast.makeText(this, "Please enter a title for the video", Toast.LENGTH_SHORT).show()
+            return
         }
-    }
 
-    private fun uploadImageToFirestore() {
-        if (currentPhotoUri == null) {
-            Toast.makeText(this, "No photo to upload", Toast.LENGTH_SHORT).show()
+        if (currentVideoUri == null) {
+            Toast.makeText(this, "No video to upload", Toast.LENGTH_SHORT).show()
             return
         }
 
         val user = firebaseAuth.currentUser
         if (user == null) {
-            Toast.makeText(this, "You must be logged in to upload photos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "You must be logged in to upload videos", Toast.LENGTH_SHORT).show()
             return
         }
 
         val storageRef = firebaseStorage.reference
-        val imagesRef = storageRef.child("images/${user.uid}/${currentPhotoUri!!.lastPathSegment}")
-        val uploadTask = imagesRef.putFile(currentPhotoUri!!)
+        val videosRef = storageRef.child("videos/${user.uid}/${currentVideoUri!!.lastPathSegment}")
+        val uploadTask = videosRef.putFile(currentVideoUri!!)
 
         uploadTask.addOnSuccessListener {
-            imagesRef.downloadUrl.addOnSuccessListener { uri ->
-                val imageUrl = uri.toString()
-                val imageMap = hashMapOf(
-                    "imageUrl" to imageUrl,
+            videosRef.downloadUrl.addOnSuccessListener { uri ->
+                val videoUrl = uri.toString()
+                val videoMap = hashMapOf(
+                    "videoUrl" to videoUrl,
+                    "title" to videoTitle,
                     "userId" to user.uid,
                     "createdAt" to System.currentTimeMillis()
                 )
 
-                firebaseFirestore.collection("images")
-                    .add(imageMap)
+                firebaseFirestore.collection("videos")
+                    .add(videoMap)
                     .addOnSuccessListener {
-                        Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Video uploaded successfully", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(this, "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Failed to upload video: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
             }
         }.addOnFailureListener { e ->
-            Toast.makeText(this, "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Failed to upload video: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun capturePhoto() {
-        val imageCapture = imageCapture ?: return
-
-        val fileName = "IMG_${System.currentTimeMillis()}.jpg"
-
-        val outputOptions: ImageCapture.OutputFileOptions
-
-        outputOptions = ImageCapture.OutputFileOptions.Builder(
-            contentResolver,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValuesOf()
-        ).build()
-
-        // val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        // val photoFile = File(picturesDir, fileName)
-        // outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-
-        imageCapture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(this),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    currentPhotoUri = output.savedUri
-                    binding.previewButton.isEnabled = true
-
-                    val message = "Photo saved: ${currentPhotoUri?.path ?: "Unknown path"}"
-                    Toast.makeText(
-                        this@MediaVideoRecordingActivity,
-                        message,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-
-                override fun onError(exc: ImageCaptureException) {
-                    Log.e("Camera", "Photo capture failed: ${exc.message}", exc)
-                    Toast.makeText(
-                        this@MediaVideoRecordingActivity,
-                        "Photo failed: ${exc.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        )
-    }
-
-    private fun showPreview() {
-        currentPhotoUri?.let {
+    private fun viewRecording() {
+        if (currentVideoUri != null) {
             binding.cameraPreview.visibility = View.GONE
-            binding.imagePreview.visibility = View.VISIBLE
-
-            Glide.with(this)
-                .load(it)
-                .into(binding.imagePreview)
-        } ?: run {
-            Toast.makeText(this, "No photo available", Toast.LENGTH_SHORT).show()
+            binding.videoPreview.visibility = View.VISIBLE
+            binding.videoPreview.setVideoURI(currentVideoUri)
+            binding.videoPreview.start()
+        } else {
+            Toast.makeText(this, "No video to display", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun hasPermissions() = requiredPermissions.all {
-        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun requestPermissions() {
-        ActivityCompat.requestPermissions(
-            this,
-            requiredPermissions,
-            permissionsRequestCode
-        )
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(
+            baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
+        requestCode: Int, permissions: Array<String>, grantResults:
+        IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == permissionsRequestCode && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-            startCamera()
-        } else {
-            Toast.makeText(this, "Camera and storage permissions required", Toast.LENGTH_SHORT).show()
-            finish()
+        if (requestCode == 10) {
+            if (allPermissionsGranted()) {
+                startCamera()
+            } else {
+                Toast.makeText(this,
+                    "Permissions not granted by the user.",
+                    Toast.LENGTH_SHORT).show()
+                finish()
+            }
         }
     }
 

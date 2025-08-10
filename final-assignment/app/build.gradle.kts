@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
     implementation(libs.camera.extensions)
+    implementation(libs.androidx.camera.video)
     implementation(libs.androidx.concurrent.futures.ktx)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.jetbrains.kotlinx.coroutines.android)
