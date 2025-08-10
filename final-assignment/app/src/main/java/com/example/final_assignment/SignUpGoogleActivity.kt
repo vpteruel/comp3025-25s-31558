@@ -52,7 +52,7 @@ class SignUpGoogleActivity : AppCompatActivity() {
 
         sharedPreferences = getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE)
 
-        binding.googleSignUpButton.setOnClickListener {
+        binding.signInButton.setOnClickListener {
             lifecycleScope.launch {
                 signIn()
             }
@@ -176,14 +176,14 @@ class SignUpGoogleActivity : AppCompatActivity() {
 
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
-            binding.googleSignUpButton.visibility = View.GONE
+            binding.signInButton.visibility = View.GONE
             binding.signOutButton.visibility = View.VISIBLE
             binding.statusTextView.text = "Signed in as: ${user.email}"
 
             Log.d(TAG, "User signed in: ${user.email}")
             Toast.makeText(this, "Welcome ${user.displayName ?: user.email}!", Toast.LENGTH_SHORT).show()
         } else {
-            binding.googleSignUpButton.visibility = View.VISIBLE
+            binding.signInButton.visibility = View.VISIBLE
             binding.signOutButton.visibility = View.GONE
             binding.statusTextView.text = "You are not signed in."
 

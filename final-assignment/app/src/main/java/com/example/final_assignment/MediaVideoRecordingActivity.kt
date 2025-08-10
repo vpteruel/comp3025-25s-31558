@@ -20,10 +20,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.contentValuesOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
 import com.example.final_assignment.databinding.ActivityMediaVideoRecordingBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import com.bumptech.glide.Glide
 
 class MediaVideoRecordingActivity : AppCompatActivity() {
 
@@ -33,6 +36,9 @@ class MediaVideoRecordingActivity : AppCompatActivity() {
     private var currentPhotoUri: Uri? = null
     private val requiredPermissions = arrayOf(Manifest.permission.CAMERA)
     private val permissionsRequestCode = 123
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var firebaseFirestore: FirebaseFirestore
+    private lateinit var firebaseStorage: FirebaseStorage
 
     companion object {
         private const val TAG = "MediaVideoRecording"
@@ -46,6 +52,10 @@ class MediaVideoRecordingActivity : AppCompatActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
+        firebaseAuth = FirebaseAuth.getInstance()
+        firebaseFirestore = FirebaseFirestore.getInstance()
+        firebaseStorage = FirebaseStorage.getInstance()
+
         if (hasPermissions())
             startCamera()
         else
@@ -57,6 +67,10 @@ class MediaVideoRecordingActivity : AppCompatActivity() {
 
         binding.previewButton.setOnClickListener {
             showPreview()
+        }
+
+        binding.uploadButton.setOnClickListener {
+            uploadImageToFirestore()
         }
 
         binding.loadCameraButton.setOnClickListener {
@@ -117,6 +131,45 @@ class MediaVideoRecordingActivity : AppCompatActivity() {
             )
         } catch (exc: Exception) {
             Log.e(TAG, "Use case binding failed", exc)
+        }
+    }
+
+    private fun uploadImageToFirestore() {
+        if (currentPhotoUri == null) {
+            Toast.makeText(this, "No photo to upload", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val user = firebaseAuth.currentUser
+        if (user == null) {
+            Toast.makeText(this, "You must be logged in to upload photos", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val storageRef = firebaseStorage.reference
+        val imagesRef = storageRef.child("images/${user.uid}/${currentPhotoUri!!.lastPathSegment}")
+        val uploadTask = imagesRef.putFile(currentPhotoUri!!)
+
+        uploadTask.addOnSuccessListener {
+            imagesRef.downloadUrl.addOnSuccessListener { uri ->
+                val imageUrl = uri.toString()
+                val imageMap = hashMapOf(
+                    "imageUrl" to imageUrl,
+                    "userId" to user.uid,
+                    "createdAt" to System.currentTimeMillis()
+                )
+
+                firebaseFirestore.collection("images")
+                    .add(imageMap)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+        }.addOnFailureListener { e ->
+            Toast.makeText(this, "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 

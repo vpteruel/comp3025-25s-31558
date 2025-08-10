@@ -1,7 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
 }
 
 android {
@@ -16,6 +24,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        resValue("string", "facebook_app_id", "\"" + localProperties.getProperty("FACEBOOK_APP_ID") + "\"")
+        resValue("string", "facebook_client_token", "\"" + localProperties.getProperty("FACEBOOK_CLIENT_TOKEN") + "\"")
+        resValue("string", "fb_login_protocol_scheme", "\"fb" + localProperties.getProperty("FACEBOOK_APP_ID") + "\"")
     }
 
     buildTypes {
@@ -50,6 +62,7 @@ dependencies {
     implementation(libs.google.playservices.location)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
@@ -65,6 +78,7 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.coroutines.guava)
     implementation(libs.guava)
     implementation(libs.glide)
+    implementation(libs.facebook.login)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
