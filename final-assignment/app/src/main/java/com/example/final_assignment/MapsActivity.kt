@@ -41,6 +41,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var lastKnownLocation: Location? = null
     private var pendingAction: (() -> Unit)? = null
 
+    companion object {
+        private val MARK_LOCATION = LatLng(43.769560, -79.275280)
+        private const val DEFAULT_ZOOM = 15f
+    }
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
@@ -71,7 +76,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mapFragment.getMapAsync(this)
 
-        binding.ilacDowntownCampusButton.setOnClickListener {
+        binding.markLocationButton.setOnClickListener {
             binding.mapFragmentContainer.visibility = View.VISIBLE
             if (::map.isInitialized) {
                 showIlacDowntownCampus()
@@ -148,8 +153,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun showIlacDowntownCampus() {
         map.clear()
-        map.addMarker(MarkerOptions().position(ILAC_DOWNTOWN_CAMPUS).title("ILAC Downtown Campus"))
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(ILAC_DOWNTOWN_CAMPUS, DEFAULT_ZOOM))
+        map.addMarker(MarkerOptions().position(MARK_LOCATION).title("ILAC Downtown Campus"))
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(MARK_LOCATION, DEFAULT_ZOOM))
     }
 
     private fun getDeviceLocationAndShowOnMap() {
@@ -220,7 +225,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (location != null) {
                         lastKnownLocation = location
                         val currentLocationLatLng = LatLng(location.latitude, location.longitude)
-                        drawConnectionLine(currentLocationLatLng, ILAC_DOWNTOWN_CAMPUS)
+                        drawConnectionLine(currentLocationLatLng, MARK_LOCATION)
                     } else {
                         Log.w("Location", "Last known location is null for drawing line. Trying live update.")
 
@@ -235,7 +240,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 if (liveLocation != null) {
                                     lastKnownLocation = liveLocation
                                     val liveCurrentLocationLatLng = LatLng(liveLocation.latitude, liveLocation.longitude)
-                                    drawConnectionLine(liveCurrentLocationLatLng, ILAC_DOWNTOWN_CAMPUS)
+                                    drawConnectionLine(liveCurrentLocationLatLng, MARK_LOCATION)
                                 } else {
                                     Toast.makeText(this, "Could not get your current location to draw line.", Toast.LENGTH_LONG).show()
                                 }
@@ -313,10 +318,5 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.e("Map", "LatLngBounds are too small: ${e.message}")
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(start, DEFAULT_ZOOM))
         }
-    }
-
-    companion object {
-        private val ILAC_DOWNTOWN_CAMPUS = LatLng(43.664420, -79.385500)
-        private const val DEFAULT_ZOOM = 15f
     }
 }
