@@ -67,9 +67,21 @@ class MediaVideoActivity : AppCompatActivity() {
             )
         }
 
-        binding.startVideoButton.setOnClickListener { captureVideo() }
-        binding.saveVideoButton.setOnClickListener { saveVideo() }
-        binding.viewRecordingButton.setOnClickListener { viewRecording() }
+        binding.startVideoButton.setOnClickListener {
+            captureVideo()
+        }
+
+        binding.saveVideoButton.setOnClickListener {
+            saveVideo()
+        }
+
+        binding.viewRecordingButton.setOnClickListener {
+            viewRecording()
+        }
+
+        binding.backButton.setOnClickListener {
+            finish()
+        }
     }
 
     private fun captureVideo() {

@@ -97,7 +97,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        binding.connectIlacAndMyLocationButton.setOnClickListener {
+        binding.connectMarkAndMyLocationButton.setOnClickListener {
             binding.mapFragmentContainer.visibility = View.VISIBLE
             if (::map.isInitialized) {
                 pendingAction = {
@@ -111,11 +111,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         binding.backButton.setOnClickListener {
             finish()
-        }
-
-        binding.nextButton.setOnClickListener {
-            val intent = Intent(this, MediaVideoRecordingActivity::class.java)
-            startActivity(intent)
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.maps)) { v, insets ->

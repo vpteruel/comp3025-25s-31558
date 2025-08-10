@@ -46,14 +46,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="My Location"
-        app:layout_constraintBottom_toBottomOf="@+id/ilacDowntownCampusButton"
-        app:layout_constraintEnd_toStartOf="@+id/connectIlacAndMyLocationButton"
+        app:layout_constraintBottom_toBottomOf="@+id/markLocationButton"
+        app:layout_constraintEnd_toStartOf="@+id/connectMarkAndMyLocationButton"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/ilacDowntownCampusButton"
-        app:layout_constraintTop_toTopOf="@+id/ilacDowntownCampusButton" />
+        app:layout_constraintStart_toEndOf="@+id/markLocationButton"
+        app:layout_constraintTop_toTopOf="@+id/markLocationButton" />
 
     <Button
-        android:id="@+id/connectIlacAndMyLocationButton"
+        android:id="@+id/connectMarkAndMyLocationButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Connect"
@@ -72,15 +72,5 @@
         android:text="Back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/nextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="Next"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
