@@ -207,7 +207,7 @@ class MediaPhotoActivity : AppCompatActivity() {
                 }
 
                 override fun onError(exc: ImageCaptureException) {
-                    Log.e("Camera", "Photo capture failed: ${exc.message}", exc)
+                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                     Toast.makeText(
                         this@MediaPhotoActivity,
                         "Photo failed: ${exc.message}",

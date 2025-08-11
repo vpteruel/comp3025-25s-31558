@@ -33,7 +33,6 @@ import com.google.android.gms.maps.model.PolylineOptions
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var binding: ActivityMapsBinding
-
     private lateinit var map: GoogleMap
     private lateinit var mapFragment: SupportMapFragment
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -41,6 +40,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var pendingAction: (() -> Unit)? = null
 
     companion object {
+        private const val TAG = "MapsActivity"
         private val MARK_LOCATION = LatLng(43.769560, -79.275280)
         private const val DEFAULT_ZOOM = 15f
     }
@@ -51,13 +51,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
 
             if (fineLocationGranted || coarseLocationGranted) {
-                Log.d("Location", "Location permissions granted.")
+                Log.d(TAG, "Location permissions granted.")
 
                 pendingAction?.invoke()
                 pendingAction = null
                 updateLocationUI()
             } else {
-                Log.w("Location", "Location permissions denied by the user.")
+                Log.w(TAG, "Location permissions denied by the user.")
                 Toast.makeText(this, "Location permission denied. Cannot show current location.", Toast.LENGTH_LONG).show()
             }
         }
@@ -121,7 +121,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        Log.d("Map", "Google Map is ready.")
+        Log.d(TAG, "Google Map is ready.")
 
         updateLocationUI()
     }
@@ -130,12 +130,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         ) {
-            Log.d("Location", "Permissions already granted.")
+            Log.d(TAG, "Permissions already granted.")
 
             pendingAction?.invoke()
             pendingAction = null
         } else {
-            Log.d("Location", "Requesting location permissions.")
+            Log.d(TAG, "Requesting location permissions.")
             requestPermissionLauncher.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -159,18 +159,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .addOnSuccessListener { location: Location? ->
                     if (location != null) {
                         lastKnownLocation = location
-                        Log.d("Location", "Found last known location: ${lastKnownLocation?.latitude}, ${lastKnownLocation?.longitude}")
+                        Log.d(TAG, "Found last known location: ${lastKnownLocation?.latitude}, ${lastKnownLocation?.longitude}")
                         val currentLocationLatLng = LatLng(location.latitude, location.longitude)
                         map.clear()
                         map.addMarker(MarkerOptions().position(currentLocationLatLng).title("Your Current Location"))
                         map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocationLatLng, DEFAULT_ZOOM))
                     } else {
-                        Log.w("Location", "Last known location is null. Trying to get current location with getCurrentLocation.")
+                        Log.w(TAG, "Last known location is null. Trying to get current location with getCurrentLocation.")
                         getCurrentLocationUpdatesAndShowOnMap()
                     }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("Location", "Failed to get last known location: ${e.message}", e)
+                    Log.e(TAG, "Failed to get last known location: ${e.message}", e)
                     Toast.makeText(this, "Error getting location. Trying live update.", Toast.LENGTH_SHORT).show()
                     getCurrentLocationUpdatesAndShowOnMap()
                 }
@@ -193,18 +193,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .addOnSuccessListener { location: Location? ->
                     if (location != null) {
                         lastKnownLocation = location
-                        Log.d("Location", "Found current location from getCurrentLocation: ${lastKnownLocation?.latitude}, ${lastKnownLocation?.longitude}")
+                        Log.d(TAG, "Found current location from getCurrentLocation: ${lastKnownLocation?.latitude}, ${lastKnownLocation?.longitude}")
                         val currentLocationLatLng = LatLng(location.latitude, location.longitude)
                         map.clear()
                         map.addMarker(MarkerOptions().position(currentLocationLatLng).title("Your Current Location (Live)"))
                         map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocationLatLng, DEFAULT_ZOOM))
                     } else {
-                        Log.w("Location", "getCurrentLocation returned null.")
+                        Log.w(TAG, "getCurrentLocation returned null.")
                         Toast.makeText(this, "Could not get current location.", Toast.LENGTH_SHORT).show()
                     }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("Location", "Failed to get current location with getCurrentLocation: ${e.message}", e)
+                    Log.e(TAG, "Failed to get current location with getCurrentLocation: ${e.message}", e)
                     Toast.makeText(this, "Error getting current location.", Toast.LENGTH_SHORT).show()
                 }
         }
@@ -221,7 +221,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         val currentLocationLatLng = LatLng(location.latitude, location.longitude)
                         drawConnectionLine(currentLocationLatLng, MARK_LOCATION)
                     } else {
-                        Log.w("Location", "Last known location is null for drawing line. Trying live update.")
+                        Log.w(TAG, "Last known location is null for drawing line. Trying live update.")
 
                         val currentLocationRequest = CurrentLocationRequest.Builder()
                             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
@@ -245,7 +245,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("Location", "Failed to get location for drawing line: ${e.message}", e)
+                    Log.e(TAG, "Failed to get location for drawing line: ${e.message}", e)
                     Toast.makeText(this, "Error getting your location to draw line.", Toast.LENGTH_SHORT).show()
                 }
         } else {
@@ -274,7 +274,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     lastKnownLocation = null
                 }
             } catch (e: SecurityException) {
-                Log.e("Exception: %s", e.message, e)
+                Log.e(TAG, e.message, e)
             }
         }
     }
@@ -309,7 +309,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         try {
             map.animateCamera(cameraUpdate)
         } catch (e: IllegalStateException) {
-            Log.e("Map", "LatLngBounds are too small: ${e.message}")
+            Log.e(TAG, "LatLngBounds are too small: ${e.message}")
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(start, DEFAULT_ZOOM))
         }
     }

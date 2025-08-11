@@ -51,8 +51,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.signUpExtraButton.setOnClickListener {
-            val intent = Intent(this, SignUpExtraActivity::class.java)
+        binding.signUpPhoneButton.setOnClickListener {
+            val intent = Intent(this, SignUpPhoneActivity::class.java)
             startActivity(intent)
         }
 

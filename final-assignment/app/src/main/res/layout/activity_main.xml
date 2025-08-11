@@ -55,13 +55,13 @@
         app:layout_constraintTop_toBottomOf="@+id/signUpFacebookButton" />
 
     <Button
-        android:id="@+id/signUpExtraButton"
+        android:id="@+id/signUpPhoneButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
-        android:text="Sign Up with extra method"
+        android:text="Sign Up with Phone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/signUpEmailButton" />
@@ -76,7 +76,7 @@
         android:text="Login"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signUpExtraButton" />
+        app:layout_constraintTop_toBottomOf="@+id/signUpPhoneButton" />
 
     <TextView
         android:id="@+id/statusTextView"
