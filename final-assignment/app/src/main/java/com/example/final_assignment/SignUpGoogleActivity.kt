@@ -60,16 +60,6 @@ class SignUpGoogleActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.nextButton.setOnClickListener {
-            if (auth.currentUser != null) {
-                val intent = Intent(this, PersonalInformationActivity::class.java)
-                startActivity(intent)
-                finish()
-            } else {
-                Toast.makeText(this, "Please sign in first", Toast.LENGTH_SHORT).show()
-            }
-        }
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.signUpGoogle)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)

@@ -35,16 +35,6 @@ class SignUpEmailActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.nextButton.setOnClickListener {
-            if (auth.currentUser != null) {
-                val intent = Intent(this, PersonalInformationActivity::class.java)
-                startActivity(intent)
-                finish()
-            } else {
-                Toast.makeText(this, "Please sign in first", Toast.LENGTH_SHORT).show()
-            }
-        }
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.signUpEmail)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -53,16 +43,16 @@ class SignUpEmailActivity : AppCompatActivity() {
     }
 
     private fun signup() {
-        val username = binding.usernameTextInputEditText.text.toString().trim()
+        val username = binding.emailTextInputEditText.text.toString().trim()
         val password = binding.passwordTextInputEditText.text.toString().trim()
         val confirmPassword = binding.confirmPasswordTextInputEditText.text.toString().trim()
 
         if (username.isEmpty()) {
-            binding.usernameTextInputLayout.error = "Username is required"
-            binding.usernameTextInputEditText.requestFocus()
+            binding.emailTextInputLayout.error = "Username is required"
+            binding.emailTextInputEditText.requestFocus()
             return
         } else {
-            binding.usernameTextInputLayout.error = null
+            binding.emailTextInputLayout.error = null
         }
 
         if (password.isEmpty()) {
@@ -99,8 +89,6 @@ class SignUpEmailActivity : AppCompatActivity() {
 
         setLoading(true)
 
-        //val firebaseAuthEmail = "$username@gmail.com"
-
         auth.createUserWithEmailAndPassword(username, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -112,7 +100,7 @@ class SignUpEmailActivity : AppCompatActivity() {
                     setLoading(false)
                     if (task.exception is FirebaseAuthUserCollisionException) {
                         Toast.makeText(baseContext, "Username might already be taken. Try a different one.", Toast.LENGTH_LONG).show()
-                        binding.usernameTextInputLayout.error = "Username might be taken"
+                        binding.emailTextInputLayout.error = "Username might be taken"
                     } else {
                         Toast.makeText(baseContext, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     }
@@ -145,7 +133,7 @@ class SignUpEmailActivity : AppCompatActivity() {
         binding.signUpProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.signUpButton.isEnabled = !isLoading
         binding.backButton.isEnabled = !isLoading
-        binding.usernameTextInputEditText.isEnabled = !isLoading
+        binding.emailTextInputEditText.isEnabled = !isLoading
         binding.passwordTextInputEditText.isEnabled = !isLoading
         binding.confirmPasswordTextInputEditText.isEnabled = !isLoading
     }
