@@ -39,6 +39,7 @@
 
     <string-array name="cities_array">
         <item>Select your city</item>
+        <item>Stratford</item>
         <item>Toronto</item>
         <item>Vancouver</item>
         <item>Montreal</item>

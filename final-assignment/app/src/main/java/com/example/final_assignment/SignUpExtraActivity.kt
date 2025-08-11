@@ -106,10 +106,15 @@ class SignUpExtraActivity : AppCompatActivity() {
     }
 
     private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
+        auth.signOut()
+
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Sign in successful", Toast.LENGTH_SHORT).show()
+
+                    val intent = Intent(this, PersonalInformationActivity::class.java)
+                    startActivity(intent)
                 } else {
                     Toast.makeText(this, "Sign in failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }

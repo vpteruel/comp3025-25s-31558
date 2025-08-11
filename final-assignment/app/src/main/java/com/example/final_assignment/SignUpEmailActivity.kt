@@ -28,7 +28,7 @@ class SignUpEmailActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         binding.signUpButton.setOnClickListener {
-            signup()
+            signIn()
         }
 
         binding.backButton.setOnClickListener {
@@ -42,7 +42,7 @@ class SignUpEmailActivity : AppCompatActivity() {
         }
     }
 
-    private fun signup() {
+    private fun signIn() {
         val username = binding.emailTextInputEditText.text.toString().trim()
         val password = binding.passwordTextInputEditText.text.toString().trim()
         val confirmPassword = binding.confirmPasswordTextInputEditText.text.toString().trim()
@@ -89,6 +89,8 @@ class SignUpEmailActivity : AppCompatActivity() {
 
         setLoading(true)
 
+        auth.signOut()
+
         auth.createUserWithEmailAndPassword(username, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -96,6 +98,9 @@ class SignUpEmailActivity : AppCompatActivity() {
                     firebaseUser?.let {
                         saveUsernameToFirestore(it.uid, username)
                     }
+
+                    val intent = Intent(this, PersonalInformationActivity::class.java)
+                    startActivity(intent)
                 } else {
                     setLoading(false)
                     if (task.exception is FirebaseAuthUserCollisionException) {

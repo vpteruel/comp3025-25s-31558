@@ -80,6 +80,7 @@ class SignUpFacebookActivity : AppCompatActivity() {
     }
 
     private fun signIn() {
+        auth.signOut()
         LoginManager.getInstance().logInWithReadPermissions(this, listOf("email", "public_profile"))
     }
 
@@ -87,6 +88,9 @@ class SignUpFacebookActivity : AppCompatActivity() {
         val credential = FacebookAuthProvider.getCredential(token.token)
         auth.signInWithCredential(credential).await()
         updateUI()
+
+        val intent = Intent(this, PersonalInformationActivity::class.java)
+        startActivity(intent)
     }
 
     private fun signOut() {

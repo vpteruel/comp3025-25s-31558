@@ -88,28 +88,16 @@ class SignUpGoogleActivity : AppCompatActivity() {
             Log.w(TAG, "Sign up failed", e)
             when (e.message) {
                 "Request canceled by user." -> {
-                    Toast.makeText(
-                        this@SignUpGoogleActivity,
-                        "Sign up canceled",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@SignUpGoogleActivity, "Sign up canceled", Toast.LENGTH_SHORT).show()
                 }
                 else -> {
-                    Toast.makeText(
-                        this@SignUpGoogleActivity,
-                        "Sign up failed: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@SignUpGoogleActivity, "Sign up failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Unexpected error during sign up", e)
             if (e is CancellationException) throw e
-            Toast.makeText(
-                this@SignUpGoogleActivity,
-                "An unexpected error occurred: ${e.localizedMessage}",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this@SignUpGoogleActivity, "An unexpected error occurred: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -141,6 +129,9 @@ class SignUpGoogleActivity : AppCompatActivity() {
                 val authCredential = GoogleAuthProvider.getCredential(tokenCredential.idToken, null)
                 val authResult = auth.signInWithCredential(authCredential).await()
                 updateUI(authResult.user)
+
+                val intent = Intent(this, PersonalInformationActivity::class.java)
+                startActivity(intent)
             } catch (e: GoogleIdTokenParsingException) {
                 Log.w(TAG, "Error parsing Google ID token", e)
                 updateUI(null)
