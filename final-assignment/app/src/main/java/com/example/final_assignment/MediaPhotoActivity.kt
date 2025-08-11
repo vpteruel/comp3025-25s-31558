@@ -84,7 +84,7 @@ class MediaPhotoActivity : AppCompatActivity() {
             finish()
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mediaVideoRecording)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mediaPhoto)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
