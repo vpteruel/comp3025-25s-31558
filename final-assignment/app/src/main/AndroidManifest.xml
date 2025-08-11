@@ -35,11 +35,7 @@
         </activity>
 
         <activity
-            android:name=".PersonalInformationActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".MediaMapOptionsActivity"
+            android:name=".LoginActivity"
             android:exported="true" />
 
         <activity
@@ -47,11 +43,27 @@
             android:exported="true" />
 
         <activity
-            android:name=".MediaVideoRecordingActivity"
+            android:name=".MediaMapOptionsActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".MediaPhotoActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".MediaVideoActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".PersonalInformationActivity"
             android:exported="true" />
 
         <activity
             android:name=".SignUpEmailActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".SignUpExtraActivity"
             android:exported="true" />
 
         <activity
@@ -60,14 +72,6 @@
 
         <activity
             android:name=".SignUpGoogleActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".SignUpExtraActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".LoginActivity"
             android:exported="true" />
 
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id" />
