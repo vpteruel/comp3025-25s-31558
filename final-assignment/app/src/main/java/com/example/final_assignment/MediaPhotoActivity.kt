@@ -41,7 +41,7 @@ class MediaPhotoActivity : AppCompatActivity() {
     private lateinit var firebaseStorage: FirebaseStorage
 
     companion object {
-        private const val TAG = "MediaVideoRecording"
+        private const val TAG = "MediaPhotoActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

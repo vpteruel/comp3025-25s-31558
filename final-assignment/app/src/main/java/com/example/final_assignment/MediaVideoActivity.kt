@@ -39,7 +39,7 @@ class MediaVideoActivity : AppCompatActivity() {
     private lateinit var firebaseStorage: FirebaseStorage
 
     companion object {
-        private const val TAG = "MediaVideoRecording"
+        private const val TAG = "MediaVideoActivity"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private val REQUIRED_PERMISSIONS =
             mutableListOf (
