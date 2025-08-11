@@ -9,7 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.final_assignment.databinding.ActivitySignUpExtraBinding
+import com.example.final_assignment.databinding.ActivitySignUpPhoneBinding
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -17,16 +17,20 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import java.util.concurrent.TimeUnit
 
-class SignUpExtraActivity : AppCompatActivity() {
+class SignUpPhoneActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySignUpExtraBinding
+    private lateinit var binding: ActivitySignUpPhoneBinding
     private lateinit var auth: FirebaseAuth
     private var verificationId: String? = null
+
+    companion object {
+        private const val TAG = "SignUpPhoneActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivitySignUpExtraBinding.inflate(layoutInflater)
+        binding = ActivitySignUpPhoneBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
@@ -43,7 +47,7 @@ class SignUpExtraActivity : AppCompatActivity() {
             finish()
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.signUpExtra)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.signUpPhone)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -72,12 +76,12 @@ class SignUpExtraActivity : AppCompatActivity() {
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            Log.d("SignUpExtraActivity", "onVerificationCompleted:$credential")
+            Log.d(TAG, "onVerificationCompleted:$credential")
             signInWithPhoneAuthCredential(credential)
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
-            Log.w("SignUpExtraActivity", "onVerificationFailed", e)
+            Log.w(TAG, "onVerificationFailed", e)
             Toast.makeText(applicationContext, "Verification failed: ${e.message}", Toast.LENGTH_LONG).show()
 
             binding.verificationCodeTextInputLayout.visibility = View.GONE
@@ -89,9 +93,9 @@ class SignUpExtraActivity : AppCompatActivity() {
             verificationId: String,
             token: PhoneAuthProvider.ForceResendingToken
         ) {
-            Log.d("SignUpExtraActivity", "onCodeSent:$verificationId")
+            Log.d(TAG, "onCodeSent:$verificationId")
 
-            this@SignUpExtraActivity.verificationId = verificationId
+            this@SignUpPhoneActivity.verificationId = verificationId
         }
     }
 
