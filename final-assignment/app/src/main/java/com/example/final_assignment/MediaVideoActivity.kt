@@ -9,6 +9,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
@@ -35,7 +36,11 @@ class MediaVideoActivity : AppCompatActivity() {
     private var videoCapture: VideoCapture<Recorder>? = null
     private var recording: Recording? = null
     private var currentVideoUri: Uri? = null
-
+    private val requiredPermissions = arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO
+    )
+    private val permissionsRequestCode = 123
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firebaseFirestore: FirebaseFirestore
     private lateinit var firebaseStorage: FirebaseStorage
@@ -43,15 +48,11 @@ class MediaVideoActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "MediaVideoActivity"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private val REQUIRED_PERMISSIONS =
-            mutableListOf (
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
-            ).toTypedArray()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityMediaVideoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -61,13 +62,10 @@ class MediaVideoActivity : AppCompatActivity() {
         firebaseFirestore = FirebaseFirestore.getInstance()
         firebaseStorage = FirebaseStorage.getInstance()
 
-        if (allPermissionsGranted()) {
+        if (hasPermissions())
             startCamera()
-        } else {
-            ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, 10
-            )
-        }
+        else
+            requestPermissions()
 
         binding.startVideoButton.setOnClickListener {
             captureVideo()
@@ -83,6 +81,13 @@ class MediaVideoActivity : AppCompatActivity() {
 
         binding.backButton.setOnClickListener {
             finish()
+        }
+
+        binding.backToCameraButton.setOnClickListener {
+            binding.cameraPreview.visibility = View.VISIBLE
+            binding.videoPreview.visibility = View.GONE
+
+            startCamera()
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mediaVideo)) { v, insets ->
@@ -188,12 +193,6 @@ class MediaVideoActivity : AppCompatActivity() {
     }
 
     private fun saveVideo() {
-        val videoTitle = binding.videoTitleEditText.text.toString()
-        if (videoTitle.isEmpty()) {
-            Toast.makeText(this, "Please enter a title for the video", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         if (currentVideoUri == null) {
             Toast.makeText(this, "No video to upload", Toast.LENGTH_SHORT).show()
             return
@@ -208,6 +207,7 @@ class MediaVideoActivity : AppCompatActivity() {
         val storageRef = firebaseStorage.reference
         val videosRef = storageRef.child("videos/${user.uid}/${currentVideoUri!!.lastPathSegment}")
         val uploadTask = videosRef.putFile(currentVideoUri!!)
+        val videoTitle = "My Video ${System.currentTimeMillis()}"
 
         uploadTask.addOnSuccessListener {
             videosRef.downloadUrl.addOnSuccessListener { uri ->
@@ -239,29 +239,35 @@ class MediaVideoActivity : AppCompatActivity() {
             binding.videoPreview.visibility = View.VISIBLE
             binding.videoPreview.setVideoURI(currentVideoUri)
             binding.videoPreview.start()
+            binding.backToCameraButton.visibility = View.VISIBLE
         } else {
             Toast.makeText(this, "No video to display", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(
-            baseContext, it) == PackageManager.PERMISSION_GRANTED
+    private fun hasPermissions() = requiredPermissions.all {
+        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            requiredPermissions,
+            permissionsRequestCode
+        )
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults:
-        IntArray) {
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 10) {
-            if (allPermissionsGranted()) {
-                startCamera()
-            } else {
-                Toast.makeText(this,
-                    "Permissions not granted by the user.",
-                    Toast.LENGTH_SHORT).show()
-                finish()
-            }
+        if (requestCode == permissionsRequestCode && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+            startCamera()
+        } else {
+            Toast.makeText(this, "Camera and storage permissions required", Toast.LENGTH_SHORT).show()
+            finish()
         }
     }
 

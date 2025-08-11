@@ -2,28 +2,26 @@ package com.example.final_assignment
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.final_assignment.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-    companion object {
-        const val PREFS_NAME = "UserPrefs"
-        const val KEY_USERNAME = "username"
-        const val KEY_PASSWORD = "password"
-        const val KEY_IS_LOGGED_IN = "isLoggedIn"
-    }
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        auth = FirebaseAuth.getInstance()
 
         binding.signUpGoogleButton.setOnClickListener {
             val intent = Intent(this, SignUpGoogleActivity::class.java)
@@ -51,8 +49,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.nextButton.setOnClickListener {
-            val intent = Intent(this, PersonalInformationActivity::class.java)
-            startActivity(intent)
+            if (auth.currentUser != null) {
+                val intent = Intent(this, PersonalInformationActivity::class.java)
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Please sign in first", Toast.LENGTH_SHORT).show()
+            }
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->

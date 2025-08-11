@@ -9,11 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.final_assignment.databinding.ActivityPersonalInformationBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class PersonalInformationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPersonalInformationBinding
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,10 +22,11 @@ class PersonalInformationActivity : AppCompatActivity() {
         binding = ActivityPersonalInformationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        sharedPreferences = getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        auth = FirebaseAuth.getInstance()
 
-        val username = sharedPreferences.getString(MainActivity.KEY_USERNAME, "")
-        binding.firstNameTextInputEditText.setText(username)
+        if (auth.currentUser != null) {
+
+        }
 
         binding.backButton.setOnClickListener {
             finish()

@@ -1,6 +1,5 @@
 package com.example.final_assignment
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -12,17 +11,13 @@ import com.example.final_assignment.databinding.ActivitySignUpEmailBinding
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.auth
 import android.content.Intent
-import android.content.SharedPreferences
 import com.google.firebase.firestore.firestore
-import androidx.core.content.edit
 
 class SignUpEmailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignUpEmailBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +25,7 @@ class SignUpEmailActivity : AppCompatActivity() {
         binding = ActivitySignUpEmailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        auth = Firebase.auth
-
-        sharedPreferences = getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        auth = FirebaseAuth.getInstance()
 
         binding.signUpButton.setOnClickListener {
             signup()
@@ -146,8 +139,6 @@ class SignUpEmailActivity : AppCompatActivity() {
                 setLoading(false)
                 Toast.makeText(baseContext, "Failed to save user details: ${e.message}", Toast.LENGTH_LONG).show()
             }
-
-        sharedPreferences.edit { putString(MainActivity.KEY_USERNAME, username) }
     }
 
     private fun setLoading(isLoading: Boolean) {

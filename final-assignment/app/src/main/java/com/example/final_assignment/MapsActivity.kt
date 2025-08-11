@@ -1,7 +1,6 @@
 package com.example.final_assignment
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location

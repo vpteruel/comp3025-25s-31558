@@ -66,15 +66,15 @@
         android:layout_height="wrap_content"
         android:text="Upload"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/loadCameraButton"
+        app:layout_constraintBottom_toTopOf="@+id/backToCameraButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
-        android:id="@+id/loadCameraButton"
+        android:id="@+id/backToCameraButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Load Camera"
+        android:text="Back to Camera"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/backButton"
         app:layout_constraintBottom_toBottomOf="parent"

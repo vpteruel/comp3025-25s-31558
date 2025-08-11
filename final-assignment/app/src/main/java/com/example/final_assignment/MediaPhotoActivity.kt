@@ -73,7 +73,7 @@ class MediaPhotoActivity : AppCompatActivity() {
             uploadImageToFirestore()
         }
 
-        binding.loadCameraButton.setOnClickListener {
+        binding.backToCameraButton.setOnClickListener {
             binding.cameraPreview.visibility = View.VISIBLE
             binding.imagePreview.visibility = View.GONE
 

@@ -1,15 +1,12 @@
 package com.example.final_assignment
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.final_assignment.databinding.ActivitySignUpExtraBinding
@@ -24,7 +21,6 @@ class SignUpExtraActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignUpExtraBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var sharedPreferences: SharedPreferences
     private var verificationId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,8 +30,6 @@ class SignUpExtraActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-
-        sharedPreferences = getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE)
 
         binding.sendCodeButton.setOnClickListener {
             sendVerificationCode()
@@ -125,10 +119,7 @@ class SignUpExtraActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val user = task.result?.user
                     Toast.makeText(this, "Sign in successful", Toast.LENGTH_SHORT).show()
-
-                    sharedPreferences.edit { putString(MainActivity.KEY_USERNAME, user?.phoneNumber) }
                 } else {
                     Toast.makeText(this, "Sign in failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }

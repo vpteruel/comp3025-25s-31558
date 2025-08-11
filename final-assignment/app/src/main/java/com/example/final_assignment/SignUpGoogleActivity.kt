@@ -1,15 +1,12 @@
 package com.example.final_assignment
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.credentials.ClearCredentialStateRequest
@@ -35,7 +32,6 @@ class SignUpGoogleActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignUpGoogleBinding
     private lateinit var credentialManager: CredentialManager
     private lateinit var auth: FirebaseAuth
-    private lateinit var sharedPreferences: SharedPreferences
 
     companion object {
         private const val TAG = "SignUpGoogleActivity"
@@ -49,8 +45,6 @@ class SignUpGoogleActivity : AppCompatActivity() {
 
         credentialManager = CredentialManager.create(this)
         auth = FirebaseAuth.getInstance()
-
-        sharedPreferences = getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE)
 
         binding.signInButton.setOnClickListener {
             lifecycleScope.launch {
@@ -157,9 +151,6 @@ class SignUpGoogleActivity : AppCompatActivity() {
                 val authCredential = GoogleAuthProvider.getCredential(tokenCredential.idToken, null)
                 val authResult = auth.signInWithCredential(authCredential).await()
                 updateUI(authResult.user)
-
-                val username = authResult.user?.email ?: ""
-                sharedPreferences.edit { putString(MainActivity.KEY_USERNAME, username) }
             } catch (e: GoogleIdTokenParsingException) {
                 Log.w(TAG, "Error parsing Google ID token", e)
                 updateUI(null)
